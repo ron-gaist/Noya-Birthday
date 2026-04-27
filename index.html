@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יום הולדת שמח אהובה שלי</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            body: ["Heebo", "sans-serif"]
+          },
+          colors: {
+            blush: "#f6d7df",
+            rose: "#eab1bf",
+            cream: "#fffaf5",
+            gold: "#c9a45c",
+            wine: "#7d4257"
+          },
+          boxShadow: {
+            soft: "0 20px 45px rgba(125, 66, 87, 0.14)",
+            glow: "0 18px 50px rgba(201, 164, 92, 0.18)"
+          },
+          keyframes: {
+            pulseGift: {
+              "0%, 100%": { transform: "scale(1)" },
+              "50%": { transform: "scale(1.08)" }
+            },
+            floatIn: {
+              "0%": { opacity: "0", transform: "translateY(24px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" }
+            }
+          },
+          animation: {
+            pulseGift: "pulseGift 1.8s ease-in-out infinite",
+            floatIn: "floatIn 0.9s ease forwards"
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Heebo", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255, 235, 240, 0.95), transparent 35%),
+        linear-gradient(180deg, #fffaf7 0%, #fff5f7 48%, #fffaf5 100%);
+      color: #6f4050;
+      overflow-x: hidden;
+    }
+
+    .page-shell::before,
+    .page-shell::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 14rem;
+      height: 14rem;
+      border-radius: 9999px;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(12px);
+      opacity: 0.45;
+      background: radial-gradient(circle, rgba(234, 177, 191, 0.42) 0%, rgba(255, 250, 245, 0) 68%);
+    }
+
+    .page-shell::before {
+      top: -2rem;
+      right: -3rem;
+    }
+
+    .page-shell::after {
+      bottom: 15%;
+      left: -3rem;
+    }
+
+    .fade-out {
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
+    .map-card {
+      background:
+        radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.92), transparent 18%),
+        radial-gradient(circle at 82% 12%, rgba(251, 231, 237, 0.9), transparent 20%),
+        linear-gradient(180deg, rgba(255, 250, 245, 0.98) 0%, rgba(255, 244, 247, 0.98) 100%);
+    }
+
+    .route-stage {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.38) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.38) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(252, 241, 244, 0.9) 0%, rgba(255, 250, 245, 0.96) 100%);
+      background-size: 100% 4.8rem, 4.8rem 100%, 100% 100%;
+    }
+
+    .route-stage svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .route-stop {
+      position: relative;
+      min-height: 8.5rem;
+    }
+
+    .route-stop-card {
+      position: relative;
+      width: calc(50% - 1.75rem);
+    }
+
+    .route-stop-left .route-stop-card {
+      margin-right: auto;
+      padding-top: 3.1rem;
+    }
+
+    .route-stop-right .route-stop-card {
+      margin-left: auto;
+    }
+
+    .route-node {
+      position: absolute;
+      left: var(--node-left, 50%);
+      top: calc(var(--node-top, 0%) + 1.2rem);
+      transform: translate(-50%, -50%);
+      width: 2.95rem;
+      height: 2.95rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 255, 255, 0.96);
+      box-shadow: 0 14px 28px rgba(125, 66, 87, 0.16);
+      background: linear-gradient(135deg, #f2c6d2 0%, #dfabbb 100%);
+      color: #ffffff;
+      font-size: 1.25rem;
+    }
+
+    .album-viewport {
+      overflow-x: auto;
+      overflow-y: hidden;
+      direction: ltr;
+      touch-action: pan-y;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .album-viewport::-webkit-scrollbar {
+      display: none;
+    }
+
+    .album-slider-track {
+      display: flex;
+      gap: 0.9rem;
+      width: max-content;
+      padding-bottom: 0.25rem;
+    }
+
+    .album-slide {
+      min-width: 74vw;
+      max-width: 74vw;
+      flex: 0 0 74vw;
+      scroll-snap-align: center;
+    }
+
+    .album-dot {
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 9999px;
+      background: rgba(216, 177, 110, 0.22);
+      transition: transform 0.25s ease, background-color 0.25s ease;
+    }
+
+    .album-dot.is-active {
+      background: #d8b16e;
+      transform: scale(1.15);
+    }
+
+    .album-image-button {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .album-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: rgba(91, 49, 66, 0.68);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .album-modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .album-modal-card {
+      width: min(100%, 27rem);
+      transform: translateY(14px) scale(0.98);
+      transition: transform 0.25s ease;
+    }
+
+    .album-modal.is-open .album-modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .photo-card img {
+      transition: transform 0.45s ease, box-shadow 0.45s ease, filter 0.45s ease;
+    }
+
+    .photo-card:hover img,
+    .photo-card:focus-within img,
+    .photo-card:active img {
+      transform: scale(1.04);
+      box-shadow: 0 18px 35px rgba(125, 66, 87, 0.16);
+      filter: saturate(1.08);
+    }
+
+    @media (min-width: 640px) {
+      .route-stop-card {
+        width: calc(50% - 2rem);
+      }
+
+      .album-slide {
+        min-width: 19rem;
+        max-width: 19rem;
+        flex-basis: 19rem;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="page-shell relative min-h-screen overflow-hidden">
+    <section id="revealScreen" class="fixed inset-0 z-30 flex min-h-screen items-center justify-center px-6 transition-all duration-700">
+      <button
+        id="openGift"
+        type="button"
+        class="group relative flex w-full max-w-xs flex-col items-center justify-center rounded-[2rem] border border-white/60 bg-white/75 px-8 py-10 text-center shadow-glow backdrop-blur-md transition duration-300 active:scale-95"
+        aria-label="לחצי כדי לפתוח"
+      >
+        <span class="animate-pulseGift text-7xl drop-shadow-sm">🎁</span>
+        <span class="mt-5 text-2xl font-extrabold text-wine">לחצי כדי לפתוח</span>
+        <span class="mt-2 text-sm font-medium text-wine/70">הכנתי לך משהו קטן מהלב</span>
+      </button>
+    </section>
+
+    <main id="mainContent" class="relative z-10 mx-auto min-h-screen max-w-md px-5 pb-14 pt-8 opacity-0 transition-all duration-1000 translate-y-8 pointer-events-none sm:max-w-2xl">
+      <section class="animate-floatIn pt-6">
+        <div class="rounded-[2rem] border border-white/70 bg-white/80 px-6 py-8 shadow-soft backdrop-blur-md">
+          <p class="text-center text-sm font-semibold tracking-[0.2em] text-gold">יום מיוחד רק בשבילך</p>
+          <h1 class="mt-3 text-center text-4xl font-extrabold leading-tight text-wine">
+            מזל טוב אהובה שלי!
+          </h1>
+          <p class="mt-4 text-center text-base leading-8 text-wine/80">
+            היום הזה כולו מוקדש לאישה הכי יפה, מצחיקה, חכמה ומרגשת שאני מכיר.
+            רציתי להכין לך פינה קטנה שתזכיר לך כמה את אהובה, כמה את מיוחדת,
+            וכמה הלב שלי מתמלא אושר בכל פעם שאני לידך.
+          </p>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="rounded-[2rem] border border-[#f2d8de] bg-[#fff9fb]/95 p-6 shadow-soft">
+          <div class="mb-4 flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde8ee] text-xl text-gold shadow-sm">
+              <i class="fa-solid fa-heart"></i>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-wine">ברכה מהלב</h2>
+              <p class="text-sm text-wine/65">מקום למילים שאני הכי רוצה להגיד לך</p>
+            </div>
+          </div>
+          <div class="rounded-[1.6rem] border border-white/80 bg-white/85 p-5 text-[1.02rem] leading-8 text-wine/85 shadow-inner">
+            אהובה שלי, היום אני רק רוצה לעצור לרגע ולהזכיר לך כמה אור, יופי ורוך את מביאה איתך לכל מקום.
+            את האדם שאני הכי אוהב לחייך איתו, לחלום איתו, ולהתרגש לידו מהדברים הכי קטנים והכי גדולים.
+            אני מאחל לך שנה מלאה בשקט בלב, בביטחון בעצמך, בצחוק מתגלגל, בהצלחות שמרגישות בדיוק שלך,
+            ובאהבה שממשיכה לעטוף אותך בכל יום מחדש. זה המקום להכניס את הברכה האישית, הארוכה והמרגשת שלך,
+            עם הזיכרונות שלכם, המילים שרק היא תבין, וכל מה שאת רוצה שיחכה לה ברגע שהיא תפתח את המתנה הזאת.
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8">
+        <div class="mb-4 flex items-center gap-3 px-1">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fff1da] text-xl text-gold shadow-sm">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-wine">התוכנית שלנו להיום</h2>
+            <p class="text-sm text-wine/65">יום מפנק, רומנטי ובלתי נשכח</p>
+          </div>
+        </div>
+
+        <div class="map-card rounded-[2rem] border border-white/70 p-4 shadow-soft backdrop-blur-md">
+          <div class="route-stage rounded-[1.7rem] border border-[#f5dde4] px-4 py-6" dir="ltr">
+            <svg viewBox="0 0 320 680" preserveAspectRatio="none" aria-hidden="true">
+              <path
+                d="M152 22 C 214 72, 102 138, 170 222 S 236 354, 146 438 S 92 584, 154 654"
+                fill="none"
+                stroke="#f4dde4"
+                stroke-width="18"
+                stroke-linecap="round"
+                opacity="0.9"
+              />
+              <path
+                d="M152 22 C 214 72, 102 138, 170 222 S 236 354, 146 438 S 92 584, 154 654"
+                fill="none"
+                stroke="#d8b16e"
+                stroke-width="6"
+                stroke-linecap="round"
+                stroke-dasharray="8 14"
+              />
+            </svg>
+
+            <div class="relative flex flex-col gap-4">
+              <article class="route-stop route-stop-right" style="--node-left: 60%;">
+                <div class="route-node">💆</div>
+                <div class="route-stop-card rounded-[1.5rem] border border-white/85 bg-white/92 p-4 shadow-soft" dir="rtl">
+                  <p class="text-sm font-bold text-gold">10:15</p>
+                  <h3 class="text-lg font-bold text-wine">מלון הילטון תל אביב</h3>
+                  <p class="mt-2 text-sm leading-7 text-wine/75">מסאז' מפנק שפותח את היום בנשימה עמוקה, שקט ופינוק אמיתי.</p>
+                </div>
+              </article>
+
+              <article class="route-stop route-stop-left" style="--node-left: 40%;">
+                <div class="route-node" style="background: linear-gradient(135deg, #e7c170 0%, #c9a45c 100%);">🍽️</div>
+                <div class="route-stop-card rounded-[1.5rem] border border-white/85 bg-white/92 p-4 shadow-soft" dir="rtl">
+                  <p class="text-sm font-bold text-gold">13:30</p>
+                  <h3 class="text-lg font-bold text-wine">מגזינו, תל אביב</h3>
+                  <p class="mt-2 text-sm leading-7 text-wine/75">ארוחת צהריים באווירה קלילה וטעימה, רגע לעצור, ליהנות ולהביט אחת על השני.</p>
+                </div>
+              </article>
+
+              <article class="route-stop route-stop-right" style="--node-left: 61%;">
+                <div class="route-node">🐎</div>
+                <div class="route-stop-card rounded-[1.5rem] border border-white/85 bg-white/92 p-4 shadow-soft" dir="rtl">
+                  <p class="text-sm font-bold text-gold">אחר הצהריים</p>
+                  <h3 class="text-lg font-bold text-wine">רכיבה על סוסים בחוף דור</h3>
+                  <p class="mt-2 text-sm leading-7 text-wine/75">רוח פתוחה, ים באופק ותחושה של חופש, כאילו היום כולו זז בקצב שלנו.</p>
+                </div>
+              </article>
+
+              <article class="route-stop route-stop-left" style="--node-left: 41%;">
+                <div class="route-node" style="background: linear-gradient(135deg, #e7c170 0%, #c9a45c 100%);">🌅</div>
+                <div class="route-stop-card rounded-[1.5rem] border border-white/85 bg-white/92 p-4 shadow-soft" dir="rtl">
+                  <p class="text-sm font-bold text-gold">שקיעה</p>
+                  <h3 class="text-lg font-bold text-wine">פיקניק רומנטי בחוף דור</h3>
+                  <p class="mt-2 text-sm leading-7 text-wine/75">שמיכה, פינוקים ושקיעה שהופכת את כל הרגע הזה לזיכרון שנשאר בלב.</p>
+                </div>
+              </article>
+
+              <article class="route-stop route-stop-right" style="--node-left: 59%;">
+                <div class="route-node">✨</div>
+                <div class="route-stop-card rounded-[1.5rem] border border-white/85 bg-white/92 p-4 shadow-soft" dir="rtl">
+                  <p class="text-sm font-bold text-gold">ערב</p>
+                  <h3 class="text-lg font-bold text-wine">מסעדה וזמן איכות עם החברות</h3>
+                  <p class="mt-2 text-sm leading-7 text-wine/75">סיום חמים, חגיגי ושמח עם אוכל טוב, צחוקים ואנשים שעושים לך טוב.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-8 pb-10">
+        <div class="mb-4 flex items-center gap-3 px-1">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#fde8ee] text-xl text-gold shadow-sm">
+            <i class="fa-solid fa-camera-retro"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-wine">האלבום שלנו</h2>
+            <p class="text-sm text-wine/65">כמה רגעים יפים ששווה לשמור קרוב</p>
+          </div>
+        </div>
+
+        <div class="rounded-[2rem] border border-white/70 bg-white/80 p-4 shadow-soft">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div id="albumDots" class="flex justify-center gap-2" aria-label="מחווני אלבום"></div>
+            <div class="flex items-center gap-2" dir="ltr">
+              <button id="albumNext" type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#f0d7df] bg-white text-wine shadow-sm transition hover:scale-105" aria-label="תמונה הבאה">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <button id="albumPrev" type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#f0d7df] bg-white text-wine shadow-sm transition hover:scale-105" aria-label="תמונה קודמת">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="albumViewport" class="album-viewport rounded-[1.8rem]">
+            <div id="albumTrack" class="album-slider-track"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="albumModal" class="album-modal" aria-hidden="true">
+    <div class="album-modal-card rounded-[2rem] border border-white/20 bg-white/95 p-4 shadow-soft">
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p id="albumModalIndex" class="text-sm font-bold text-gold"></p>
+          <h3 id="albumModalTitle" class="text-xl font-bold text-wine"></h3>
+        </div>
+        <button id="albumModalClose" type="button" class="flex h-10 w-10 items-center justify-center rounded-full border border-[#f0d7df] bg-white text-wine shadow-sm" aria-label="סגירת תצוגה">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <img id="albumModalImage" src="" alt="" class="aspect-[4/5] w-full rounded-[1.5rem] object-cover shadow-sm">
+      <p id="albumModalCaption" class="px-1 pt-4 text-sm leading-7 text-wine/75"></p>
+    </div>
+  </div>
+
+  <script>
+    const openGiftButton = document.getElementById("openGift");
+    const revealScreen = document.getElementById("revealScreen");
+    const mainContent = document.getElementById("mainContent");
+    const albumViewport = document.getElementById("albumViewport");
+    const albumTrack = document.getElementById("albumTrack");
+    const albumPrev = document.getElementById("albumPrev");
+    const albumNext = document.getElementById("albumNext");
+    const albumDotsContainer = document.getElementById("albumDots");
+    const albumModal = document.getElementById("albumModal");
+    const albumModalClose = document.getElementById("albumModalClose");
+    const albumModalImage = document.getElementById("albumModalImage");
+    const albumModalTitle = document.getElementById("albumModalTitle");
+    const albumModalIndex = document.getElementById("albumModalIndex");
+    const albumModalCaption = document.getElementById("albumModalCaption");
+    // Add more photos by duplicating one object in this array.
+    const albumItems = [
+      {
+        title: "זיכרון אהוב",
+        alt: "תמונה זוגית ראשונה",
+        src: "https://placehold.co/960x1200/f8dfe7/7d4257?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+1",
+        caption: "כאן אפשר לכתוב משפט קטן על רגע שאת אוהבת במיוחד, זיכרון מתוק או בדיחה פרטית שלכם."
+      },
+      {
+        title: "יום מושלם",
+        alt: "טיול רומנטי יחד",
+        src: "https://placehold.co/960x1200/fff3e0/c9a45c?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+2",
+        caption: "מקום מושלם להוסיף כמה מילים על הרגע הזה, על התחושה שהייתה שם, ועל כמה היא יפה בעינייך."
+      },
+      {
+        title: "חיוך קבוע",
+        alt: "רגע מצחיק ומתוק",
+        src: "https://placehold.co/960x1200/f7e6ec/8d5566?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+3",
+        caption: "עוד כיתוב קטן שמספר למה דווקא התמונה הזאת תמיד מצליחה להעלות לך חיוך."
+      },
+      {
+        title: "רק שלנו",
+        alt: "זיכרון מיוחד מהקשר",
+        src: "https://placehold.co/960x1200/ffe8ef/b98f50?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+4",
+        caption: "ואם תרצי, זו יכולה להיות התמונה עם הכיתוב הכי אישי, הכי מרגש, והכי שלכם בעולם."
+      }
+    ];
+    let albumSlides = [];
+    let albumDots = [];
+    let opened = false;
+    let activeSlide = 0;
+    let isAlbumPointerDown = false;
+    let albumPointerStartX = 0;
+    let albumPointerStartScroll = 0;
+    let albumDragged = false;
+
+    function buildAlbum() {
+      if (!albumTrack || !albumDotsContainer) return;
+      albumTrack.innerHTML = albumItems.map((item, index) => `
+        <article class="album-slide px-1" dir="rtl">
+          <div class="photo-card overflow-hidden rounded-[1.8rem] border border-white/75 bg-white/90 p-3 shadow-soft">
+            <div class="mb-3 flex items-center justify-between text-xs font-semibold text-gold">
+              <span>${String(index + 1).padStart(2, "0")}</span>
+              <span>${item.title}</span>
+            </div>
+            <button type="button" class="album-image-button" data-album-open="${index}" aria-label="פתיחת ${item.title}">
+              <img
+                src="${item.src}"
+                alt="${item.alt}"
+                class="aspect-[5/4] w-full rounded-[1.35rem] object-cover shadow-sm"
+              >
+            </button>
+            <p class="px-1 pb-1 pt-4 text-sm leading-7 text-wine/75">${item.caption}</p>
+          </div>
+        </article>
+      `).join("");
+
+      albumDotsContainer.innerHTML = albumItems.map((item, index) => `
+        <button type="button" class="album-dot${index === 0 ? " is-active" : ""}" aria-label="מעבר ל${item.title}"></button>
+      `).join("");
+
+      albumSlides = Array.from(document.querySelectorAll(".album-slide"));
+      albumDots = Array.from(document.querySelectorAll("#albumDots .album-dot"));
+
+      albumDots.forEach((dot, index) => {
+        dot.addEventListener("click", () => updateAlbum(index));
+      });
+
+      albumTrack.querySelectorAll("[data-album-open]").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          if (albumDragged) {
+            event.preventDefault();
+            albumDragged = false;
+            return;
+          }
+          openAlbumModal(Number(button.getAttribute("data-album-open")));
+        });
+      });
+
+      syncAlbumFromScroll();
+    }
+
+    function launchConfetti() {
+      const defaults = {
+        spread: 360,
+        ticks: 90,
+        gravity: 0.85,
+        decay: 0.94,
+        startVelocity: 28,
+        scalar: 1.05,
+        zIndex: 1000
+      };
+
+      confetti({
+        ...defaults,
+        particleCount: 120,
+        origin: { x: 0.5, y: 0.45 },
+        colors: ["#f6d7df", "#eab1bf", "#c9a45c", "#fffaf5"]
+      });
+
+      setTimeout(() => {
+        confetti({
+          ...defaults,
+          particleCount: 80,
+          origin: { x: 0.18, y: 0.5 }
+        });
+        confetti({
+          ...defaults,
+          particleCount: 80,
+          origin: { x: 0.82, y: 0.5 }
+        });
+      }, 180);
+    }
+
+    openGiftButton.addEventListener("click", () => {
+      if (opened) return;
+      opened = true;
+      launchConfetti();
+      revealScreen.classList.add("fade-out");
+
+      setTimeout(() => {
+        revealScreen.style.display = "none";
+        mainContent.classList.add("fade-in");
+      }, 650);
+    });
+
+    function getSlideOffset(index) {
+      const slide = albumSlides[index];
+      return slide ? slide.offsetLeft : 0;
+    }
+
+    function setActiveDot(index) {
+      activeSlide = (index + albumSlides.length) % albumSlides.length;
+      albumDots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("is-active", dotIndex === activeSlide);
+      });
+    }
+
+    function scrollAlbumTo(index) {
+      if (!albumViewport || !albumSlides.length) return;
+      const normalizedIndex = (index + albumSlides.length) % albumSlides.length;
+      albumViewport.scrollTo({
+        left: getSlideOffset(normalizedIndex),
+        behavior: "smooth"
+      });
+      setActiveDot(normalizedIndex);
+    }
+
+    function syncAlbumFromScroll() {
+      if (!albumViewport || !albumSlides.length) return;
+      const currentLeft = albumViewport.scrollLeft;
+      let closestIndex = 0;
+      let smallestDistance = Number.POSITIVE_INFINITY;
+
+      albumSlides.forEach((slide, index) => {
+        const distance = Math.abs(slide.offsetLeft - currentLeft);
+        if (distance < smallestDistance) {
+          smallestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      setActiveDot(closestIndex);
+    }
+
+    if (albumPrev && albumNext) {
+      albumPrev.addEventListener("click", () => scrollAlbumTo(activeSlide - 1));
+      albumNext.addEventListener("click", () => scrollAlbumTo(activeSlide + 1));
+    }
+
+    function openAlbumModal(index) {
+      const item = albumItems[index];
+      if (!item || !albumModal) return;
+      albumModalImage.src = item.src;
+      albumModalImage.alt = item.alt;
+      albumModalTitle.textContent = item.title;
+      albumModalIndex.textContent = String(index + 1).padStart(2, "0");
+      albumModalCaption.textContent = item.caption;
+      albumModal.classList.add("is-open");
+      albumModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeAlbumModal() {
+      if (!albumModal) return;
+      albumModal.classList.remove("is-open");
+      albumModal.setAttribute("aria-hidden", "true");
+    }
+
+    if (albumViewport) {
+      albumViewport.addEventListener("scroll", () => {
+        syncAlbumFromScroll();
+      }, { passive: true });
+
+      albumViewport.addEventListener("pointerdown", (event) => {
+        isAlbumPointerDown = true;
+        albumDragged = false;
+        albumPointerStartX = event.clientX;
+        albumPointerStartScroll = albumViewport.scrollLeft;
+      });
+
+      albumViewport.addEventListener("pointermove", (event) => {
+        if (!isAlbumPointerDown) return;
+        const deltaX = event.clientX - albumPointerStartX;
+        if (Math.abs(deltaX) > 6) {
+          albumDragged = true;
+        }
+        albumViewport.scrollLeft = albumPointerStartScroll - deltaX;
+      });
+
+      const stopAlbumPointer = () => {
+        isAlbumPointerDown = false;
+        window.setTimeout(() => {
+          albumDragged = false;
+        }, 0);
+      };
+
+      albumViewport.addEventListener("pointerup", stopAlbumPointer);
+      albumViewport.addEventListener("pointerleave", stopAlbumPointer);
+      albumViewport.addEventListener("pointercancel", stopAlbumPointer);
+    }
+
+    albumModalClose.addEventListener("click", closeAlbumModal);
+    albumModal.addEventListener("click", (event) => {
+      if (event.target === albumModal) {
+        closeAlbumModal();
+      }
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeAlbumModal();
+      }
+    });
+
+    window.addEventListener("resize", () => scrollAlbumTo(activeSlide));
+
+    buildAlbum();
+    scrollAlbumTo(0);
+  </script>
+</body>
+</html>
