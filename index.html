@@ -103,6 +103,7 @@
     .route-stage {
       position: relative;
       overflow: hidden;
+      isolation: isolate;
       background:
         linear-gradient(rgba(255, 255, 255, 0.38) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.38) 1px, transparent 1px),
@@ -110,40 +111,69 @@
       background-size: 100% 4.8rem, 4.8rem 100%, 100% 100%;
     }
 
+    .route-stage::before,
+    .route-stage::after {
+      content: "";
+      position: absolute;
+      top: 1.5rem;
+      bottom: 1.5rem;
+      pointer-events: none;
+      border-radius: 9999px;
+    }
+
+    .route-stage::before {
+      right: 1.5rem;
+      width: 0.85rem;
+      background: linear-gradient(180deg, rgba(244, 221, 228, 0.95) 0%, rgba(240, 207, 218, 0.92) 100%);
+      box-shadow: 0 10px 24px rgba(125, 66, 87, 0.08);
+    }
+
+    .route-stage::after {
+      right: 1.81rem;
+      width: 0.22rem;
+      background: repeating-linear-gradient(180deg, #d8b16e 0 1.5rem, transparent 1.5rem 3.25rem);
+      opacity: 0.96;
+    }
+
     .route-stage svg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
+      display: none;
       pointer-events: none;
     }
 
     .route-stop {
       position: relative;
-      min-height: 8.5rem;
+      min-height: auto;
+      padding-right: 4.5rem;
+      z-index: 1;
     }
 
     .route-stop-card {
       position: relative;
-      width: calc(50% - 1.75rem);
+      width: 100%;
+      z-index: 1;
     }
 
     .route-stop-left .route-stop-card {
-      margin-right: auto;
-      padding-top: 3.1rem;
+      margin-right: 0;
+      padding-top: 0;
     }
 
     .route-stop-right .route-stop-card {
-      margin-left: auto;
+      margin-left: 0;
     }
 
     .route-node {
       position: absolute;
-      left: var(--node-left, 50%);
-      top: calc(var(--node-top, 0%) + 1.2rem);
-      transform: translate(-50%, -50%);
-      width: 2.95rem;
-      height: 2.95rem;
+      left: auto;
+      right: 0.44rem;
+      top: 1.75rem;
+      transform: translateY(-50%);
+      width: 2.75rem;
+      height: 2.75rem;
       border-radius: 9999px;
       display: flex;
       align-items: center;
@@ -153,27 +183,36 @@
       background: linear-gradient(135deg, #f2c6d2 0%, #dfabbb 100%);
       color: #ffffff;
       font-size: 1.25rem;
+      z-index: 2;
     }
 
     .album-viewport {
       overflow-x: auto;
       overflow-y: hidden;
       direction: ltr;
-      touch-action: pan-y;
+      touch-action: pan-x pinch-zoom;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      scroll-behavior: smooth;
     }
 
     .album-viewport::-webkit-scrollbar {
       display: none;
     }
 
+    .album-viewport.is-dragging {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+
     .album-slider-track {
       display: flex;
       gap: 0.9rem;
       width: max-content;
-      padding-bottom: 0.25rem;
+      padding: 0 0.2rem 0.25rem;
     }
 
     .album-slide {
@@ -247,8 +286,40 @@
     }
 
     @media (min-width: 640px) {
+      .route-stage::before,
+      .route-stage::after {
+        display: none;
+      }
+
+      .route-stage svg {
+        display: block;
+      }
+
+      .route-stop {
+        min-height: 8.5rem;
+        padding-right: 0;
+      }
+
       .route-stop-card {
         width: calc(50% - 2rem);
+      }
+
+      .route-stop-left .route-stop-card {
+        margin-right: auto;
+        padding-top: 3.1rem;
+      }
+
+      .route-stop-right .route-stop-card {
+        margin-left: auto;
+      }
+
+      .route-node {
+        left: var(--node-left, 50%);
+        right: auto;
+        top: calc(var(--node-top, 0%) + 1.2rem);
+        transform: translate(-50%, -50%);
+        width: 2.95rem;
+        height: 2.95rem;
       }
 
       .album-slide {
@@ -489,7 +560,11 @@
     let isAlbumPointerDown = false;
     let albumPointerStartX = 0;
     let albumPointerStartScroll = 0;
+    let albumPointerId = null;
     let albumDragged = false;
+    let albumScrollSettleTimer = 0;
+    let albumAutoSnapTimer = 0;
+    let isAlbumAutoSnapping = false;
 
     function buildAlbum() {
       if (!albumTrack || !albumDotsContainer) return;
@@ -520,7 +595,7 @@
       albumDots = Array.from(document.querySelectorAll("#albumDots .album-dot"));
 
       albumDots.forEach((dot, index) => {
-        dot.addEventListener("click", () => updateAlbum(index));
+        dot.addEventListener("click", () => scrollAlbumTo(index));
       });
 
       albumTrack.querySelectorAll("[data-album-open]").forEach((button) => {
@@ -593,9 +668,31 @@
       });
     }
 
+    function markAlbumAutoSnapping(duration = 320) {
+      isAlbumAutoSnapping = true;
+      window.clearTimeout(albumAutoSnapTimer);
+      albumAutoSnapTimer = window.setTimeout(() => {
+        isAlbumAutoSnapping = false;
+      }, duration);
+    }
+
+    function queueAlbumSnap() {
+      if (!albumViewport || !albumSlides.length) return;
+      window.clearTimeout(albumScrollSettleTimer);
+      albumScrollSettleTimer = window.setTimeout(() => {
+        if (isAlbumPointerDown || isAlbumAutoSnapping) return;
+        markAlbumAutoSnapping();
+        albumViewport.scrollTo({
+          left: getSlideOffset(activeSlide),
+          behavior: "smooth"
+        });
+      }, 120);
+    }
+
     function scrollAlbumTo(index) {
       if (!albumViewport || !albumSlides.length) return;
       const normalizedIndex = (index + albumSlides.length) % albumSlides.length;
+      markAlbumAutoSnapping();
       albumViewport.scrollTo({
         left: getSlideOffset(normalizedIndex),
         behavior: "smooth"
@@ -646,17 +743,25 @@
     if (albumViewport) {
       albumViewport.addEventListener("scroll", () => {
         syncAlbumFromScroll();
+        queueAlbumSnap();
       }, { passive: true });
 
       albumViewport.addEventListener("pointerdown", (event) => {
+        if (event.pointerType !== "mouse" || event.button !== 0) return;
         isAlbumPointerDown = true;
+        albumPointerId = event.pointerId;
         albumDragged = false;
         albumPointerStartX = event.clientX;
         albumPointerStartScroll = albumViewport.scrollLeft;
+        albumViewport.classList.add("is-dragging");
+        if (albumViewport.setPointerCapture) {
+          albumViewport.setPointerCapture(event.pointerId);
+        }
       });
 
       albumViewport.addEventListener("pointermove", (event) => {
         if (!isAlbumPointerDown) return;
+        event.preventDefault();
         const deltaX = event.clientX - albumPointerStartX;
         if (Math.abs(deltaX) > 6) {
           albumDragged = true;
@@ -665,7 +770,14 @@
       });
 
       const stopAlbumPointer = () => {
+        if (!isAlbumPointerDown) return;
         isAlbumPointerDown = false;
+        albumViewport.classList.remove("is-dragging");
+        if (albumPointerId !== null && albumViewport.releasePointerCapture) {
+          albumViewport.releasePointerCapture(albumPointerId);
+        }
+        albumPointerId = null;
+        queueAlbumSnap();
         window.setTimeout(() => {
           albumDragged = false;
         }, 0);
