@@ -688,11 +688,6 @@
             window.clearTimeout(spotifyPlaybackStatusTimer);
             updateSpotifyStatus("מתנגן עכשיו: 22 - Taylor Swift");
           });
-          EmbedController.addListener("playback_update", (event) => {
-            if (spotifyPlaybackStarted && event?.data?.isPaused) {
-              updateSpotifyStatus("הניגון מושהה. אפשר להמשיך ישירות מהנגן.");
-            }
-          });
         }
       );
     };
