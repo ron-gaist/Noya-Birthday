@@ -311,6 +311,19 @@
       filter: saturate(1.08);
     }
 
+    .spotify-player-content {
+      max-height: 300px;
+      opacity: 1;
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+      overflow: hidden;
+    }
+
+    .spotify-player-content.is-collapsed {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
     @media (min-width: 640px) {
       .route-stage::before,
       .route-stage::after {
@@ -397,11 +410,17 @@
             </div>
           </div>
           <div class="rounded-[1.6rem] border border-white/80 bg-white/85 p-5 text-[1.02rem] leading-8 text-wine/85 shadow-inner">
-            אהובה שלי, היום אני רק רוצה לעצור לרגע ולהזכיר לך כמה אור, יופי ורוך את מביאה איתך לכל מקום.
-            את האדם שאני הכי אוהב לחייך איתו, לחלום איתו, ולהתרגש לידו מהדברים הכי קטנים והכי גדולים.
-            אני מאחל לך שנה מלאה בשקט בלב, בביטחון בעצמך, בצחוק מתגלגל, בהצלחות שמרגישות בדיוק שלך,
-            ובאהבה שממשיכה לעטוף אותך בכל יום מחדש. זה המקום להכניס את הברכה האישית, הארוכה והמרגשת שלך,
-            עם הזיכרונות שלכם, המילים שרק היא תבין, וכל מה שאת רוצה שיחכה לה ברגע שהיא תפתח את המתנה הזאת.
+            אהבה שלי, ❤️<br>
+            אז עכשיו את כבר בת 22, זה חתיכת מספר! 🥳🎂<br>
+            אנסה להגיד כמה מילים שיתארו כמה אני אוהב ומעריך אותך, לא מבטיח שאצליח... 📝✨<br>
+            נושה שלי, קודם כל ולפני הכל - אני אוהב אותך! ❤️ את האור בחיים שלי 🌝, השקט שלי 🔇 (למרות שלרוב את רועשת בטירוף... 📣😜), הצחוק שלי 😁, השמחה שלי 😎, והמתולתלת הבלונדינית שלי 👩‍🦱.<br>
+            את מכניסה אור לכל מקום שאת מגיעה אליו, כולם אוהבים אותך (ואת יודעת כבר כמה המשפחה שלי שרופה עלייך!) 👨‍👩‍👧‍👦 איזה כיף לי שאת שלי.<br>
+            את ההרפתקנית שלי (למרות שאת די סאחית ויש לך עוד לאן להשתפר... 😉 השנה נעבוד על זה!), את חרוצה ועובדת קשה כדי לכבוש את כל המטרות שלך 🏆💪, ובתכלס אין עלייך בעולם. 👑<br>
+            אנחנו כבר שנתיים+ ביחד מי היה מאמין שהפתגם ‘הזמן טס שנהנים’ כל כך נכון שנהנים.<br>
+            אני מאחל לנו שנמשיך לאהוב, לחוות חוויות, לצחוק, לבכות (לא צריך הרבה), להתרגש, להתאכזב (עדיף שלא), לצעוק, ללחוש, לטייל מסביב לעולם וגם בחלקה הקטנה שלנו, שנסתפק ממה שיש לנו, שנתגעגע, תכלס נראלי שאני פשוט מאחל לנו שנמשיך כמו שאנחנו כי ככה זה בול.<br>
+            עכשיו מחכה לך טיסה ארוכה ומדהימה לניו יורק להדריך על ילדים ולחוות המון הרפתקאות (לבד ועם חברים חדשים) אני מקווה שפשוט תהני ללא הפסקה ובלי שום דאגות. נ.ב. אני אתגעגע מאוד אבל הכל טוב החיים שלי עמוסים ממש ממש מהר את כבר תחזרי אליי.<br>
+            בקיצור אני אוהב אותך עד אחרי הירח, הכוכבים, השמש וחזרה.<br>
+            מקווה שהצלחתי לרגש אותך❤️
           </div>
         </div>
       </section>
@@ -527,22 +546,29 @@
           <p class="text-xs font-extrabold tracking-[0.22em] text-gold">NOW PLAYING</p>
           <p class="mt-1 text-sm font-semibold text-wine">22 - Taylor Swift</p>
         </div>
-        <a
-          href="https://open.spotify.com/track/3WC5CVAahvn98hiseoIvbw?si=abb6ccdeec11413c"
-          target="_blank"
-          rel="noreferrer noopener"
-          class="inline-flex items-center gap-2 rounded-full border border-[#e6ced6] bg-white px-3 py-2 text-xs font-bold text-wine transition hover:-translate-y-0.5"
-        >
-          <i class="fa-brands fa-spotify text-[#1db954]"></i>
-          Spotify
-        </a>
+        <div class="flex items-center gap-2">
+          <a
+            href="https://open.spotify.com/track/3WC5CVAahvn98hiseoIvbw?si=abb6ccdeec11413c"
+            target="_blank"
+            rel="noreferrer noopener"
+            class="inline-flex items-center gap-2 rounded-full border border-[#e6ced6] bg-white px-3 py-2 text-xs font-bold text-wine transition hover:-translate-y-0.5"
+          >
+            <i class="fa-brands fa-spotify text-[#1db954]"></i>
+            Spotify
+          </a>
+          <button id="toggleSpotifyPlayer" class="flex h-8 w-8 items-center justify-center rounded-full border border-[#e6ced6] bg-white text-wine transition hover:-translate-y-0.5" aria-label="הסתר/הצג נגן">
+            <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
+          </button>
+        </div>
       </div>
-      <div class="spotify-player-frame shadow-sm">
-        <div id="spotifyPlayerMount"></div>
+      <div id="spotifyPlayerContent" class="spotify-player-content">
+        <div class="spotify-player-frame shadow-sm">
+          <div id="spotifyPlayerMount"></div>
+        </div>
+        <p id="spotifyPlayerStatus" aria-live="polite" class="px-1 pt-3 text-xs leading-6 text-wine/70">
+          השיר יתחיל להתנגן אחרי פתיחת המתנה.
+        </p>
       </div>
-      <p id="spotifyPlayerStatus" aria-live="polite" class="px-1 pt-3 text-xs leading-6 text-wine/70">
-        השיר יתחיל להתנגן אחרי פתיחת המתנה.
-      </p>
     </div>
   </aside>
 
@@ -583,28 +609,88 @@
     // Add more photos by duplicating one object in this array.
     const albumItems = [
       {
-        title: "זיכרון אהוב",
-        alt: "תמונה זוגית ראשונה",
-        src: "https://placehold.co/960x1200/f8dfe7/7d4257?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+1",
-        caption: "כאן אפשר לכתוב משפט קטן על רגע שאת אוהבת במיוחד, זיכרון מתוק או בדיחה פרטית שלכם."
+        title: "שמש שלי",
+        alt: "סלפי בחוץ",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2010.43.31.jpeg",
+        caption: "החיוך שלך פשוט מאיר לי כל יום מחדש, אפילו יותר מהשמש."
       },
       {
-        title: "יום מושלם",
-        alt: "טיול רומנטי יחד",
-        src: "https://placehold.co/960x1200/fff3e0/c9a45c?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+2",
-        caption: "מקום מושלם להוסיף כמה מילים על הרגע הזה, על התחושה שהייתה שם, ועל כמה היא יפה בעינייך."
+        title: "סלפי במעלית",
+        alt: "תמונת מעלית יחד",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2010.44.04%20(1).jpeg",
+        caption: "אין על תמונות מראה במעלית איתך, תמיד הכי יפים שיש."
       },
       {
-        title: "חיוך קבוע",
-        alt: "רגע מצחיק ומתוק",
-        src: "https://placehold.co/960x1200/f7e6ec/8d5566?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+3",
-        caption: "עוד כיתוב קטן שמספר למה דווקא התמונה הזאת תמיד מצליחה להעלות לך חיוך."
+        title: "יין ונוף איתך",
+        alt: "דייט בטבע",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2010.44.04.jpeg",
+        caption: "הדייטים שלנו יחד הם הזמן האהוב עליי בשבוע. לחיי עוד המון רגעים כאלה."
       },
       {
-        title: "רק שלנו",
-        alt: "זיכרון מיוחד מהקשר",
-        src: "https://placehold.co/960x1200/ffe8ef/b98f50?text=%D7%AA%D7%9E%D7%95%D7%A0%D7%94+4",
-        caption: "ואם תרצי, זו יכולה להיות התמונה עם הכיתוב הכי אישי, הכי מרגש, והכי שלכם בעולם."
+        title: "המבט שלך",
+        alt: "מסתכלים אחד על השנייה",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2010.46.33.jpeg",
+        caption: "אני פשוט נמס כשאני רואה איך את מסתכלת עליי. זכיתי בך."
+      },
+      {
+        title: "החיילת שלי",
+        alt: "זוג על מדים",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2010.50.11.jpeg",
+        caption: "גם כששנינו על מדים, אין דבר שמשמח אותי יותר מלהיות לצידך."
+      },
+      {
+        title: "שטויות איתך",
+        alt: "עושה פרצוף מצחיק",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.01.jpeg",
+        caption: "אין רגע אחד משעמם איתך, מת על השטויות שלך."
+      },
+      {
+        title: "קניות לשבת",
+        alt: "מסדרת דברים",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.01%20(1).jpeg",
+        caption: "אפילו קניות פשוטות איתך הופכות לחוויה קורעת מצחוק."
+      },
+      {
+        title: "חופשה מושלמת",
+        alt: "זמן איכות בחלוקים",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.01%20(2).jpeg",
+        caption: "כל חופשה איתך היא חלום שמתגשם, במיוחד ברגעים הקטנים של פינוק יחד."
+      },
+      {
+        title: "פינוק יחד",
+        alt: "בספא יחד",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.01%20(3).jpeg",
+        caption: "אין כמו להתפנק יחד. את הכי יפה אפילו עם מגבת על הראש."
+      },
+      {
+        title: "רוכבים יחד",
+        alt: "על האופניים",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.02.jpeg",
+        caption: "אפילו בנסיעה על אופניים אני נהנה לראות אותך מחייכת."
+      },
+      {
+        title: "הכותל המערבי",
+        alt: "תמונה בכותל",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.02%20(1).jpeg",
+        caption: "ביקור בכותל איתך, מתפלל שתמיד נישאר ביחד ומאושרים."
+      },
+      {
+        title: "פרחים לפרח",
+        alt: "זר פרחים",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.02%20(2).jpeg",
+        caption: "שום זר פרחים בעולם לא יפה כמוך, אבל היה שווה לנסות לשמח אותך."
+      },
+      {
+        title: "צחוק מתגלגל",
+        alt: "נשיקה וצחוק בלילה",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.02%20(3).jpeg",
+        caption: "הצחוק הזה שלך הוא הדבר שאני הכי אוהב לשמוע בעולם."
+      },
+      {
+        title: "עוד סלפי מעלית",
+        alt: "צחוק במעלית",
+        src: "./assets/WhatsApp%20Image%202026-05-07%20at%2017.47.02%20(4).jpeg",
+        caption: "כל נסיעה במעלית איתך נגמרת בצחוק ותמונה מושלמת לאוסף."
       }
     ];
     let albumSlides = [];
@@ -873,6 +959,8 @@
         queueAlbumSnap();
       }, { passive: true });
 
+      let albumPointerTarget = null;
+
       albumViewport.addEventListener("pointerdown", (event) => {
         if (event.pointerType !== "mouse" || event.button !== 0) return;
         isAlbumPointerDown = true;
@@ -880,6 +968,7 @@
         albumDragged = false;
         albumPointerStartX = event.clientX;
         albumPointerStartScroll = albumViewport.scrollLeft;
+        albumPointerTarget = event.target;
         albumViewport.classList.add("is-dragging");
         if (albumViewport.setPointerCapture) {
           albumViewport.setPointerCapture(event.pointerId);
@@ -905,8 +994,17 @@
         }
         albumPointerId = null;
         queueAlbumSnap();
+
+        if (!albumDragged && albumPointerTarget) {
+          const button = albumPointerTarget.closest("[data-album-open]");
+          if (button) {
+            openAlbumModal(Number(button.getAttribute("data-album-open")));
+          }
+        }
+
         window.setTimeout(() => {
           albumDragged = false;
+          albumPointerTarget = null;
         }, 0);
       };
 
@@ -929,6 +1027,21 @@
     });
 
     window.addEventListener("resize", () => scrollAlbumTo(activeSlide));
+
+    const toggleSpotifyPlayerBtn = document.getElementById("toggleSpotifyPlayer");
+    const spotifyPlayerContent = document.getElementById("spotifyPlayerContent");
+    
+    if (toggleSpotifyPlayerBtn && spotifyPlayerContent) {
+      toggleSpotifyPlayerBtn.addEventListener("click", () => {
+        spotifyPlayerContent.classList.toggle("is-collapsed");
+        const icon = toggleSpotifyPlayerBtn.querySelector("i");
+        if (spotifyPlayerContent.classList.contains("is-collapsed")) {
+          icon.classList.replace("fa-chevron-down", "fa-chevron-up");
+        } else {
+          icon.classList.replace("fa-chevron-up", "fa-chevron-down");
+        }
+      });
+    }
 
     buildAlbum();
     scrollAlbumTo(0);
