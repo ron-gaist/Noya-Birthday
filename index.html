@@ -123,6 +123,11 @@
       80% { opacity: 0.6; }
       100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
     }
+    @keyframes floatUpHeart {
+      0% { transform: translateY(0) scale(0.5) rotate(-10deg); opacity: 0; }
+      20% { opacity: 0.8; }
+      100% { transform: translateY(-80vh) scale(1.5) rotate(20deg); opacity: 0; }
+    }
 
     /* Elegant Title */
     .text-elegant {
@@ -588,6 +593,16 @@
                 stroke-linecap="round"
                 stroke-dasharray="8 16"
               />
+              <path
+                id="timelineProgress"
+                d="M152 22 C 214 72, 102 138, 170 222 S 236 354, 146 438 S 92 584, 154 654"
+                fill="none"
+                stroke="#c9a45c"
+                stroke-width="8"
+                stroke-linecap="round"
+                style="stroke-dasharray: 2000; stroke-dashoffset: 2000; transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);"
+                class="drop-shadow-md"
+              />
             </svg>
 
             <div class="relative flex flex-col gap-6">
@@ -677,7 +692,15 @@
       <div class="mb-3 flex items-center justify-between gap-3 px-1">
         <div>
           <p class="text-[0.65rem] font-extrabold tracking-[0.25em] text-gold uppercase">Now Playing</p>
-          <p class="mt-0.5 text-[0.95rem] font-bold text-wine font-heading">22 - Taylor Swift</p>
+          <div class="flex items-center gap-2">
+            <p class="mt-0.5 text-[0.95rem] font-bold text-wine font-heading">22 - Taylor Swift</p>
+            <div id="musicVisualizer" class="hidden items-end gap-[3px] h-3 ml-2 opacity-80" dir="ltr">
+              <span class="w-[3px] h-full bg-gold rounded-full animate-[bounce_0.6s_ease-in-out_infinite_alternate]" style="animation-delay: 0s"></span>
+              <span class="w-[3px] h-2/3 bg-gold rounded-full animate-[bounce_0.6s_ease-in-out_infinite_alternate]" style="animation-delay: 0.2s"></span>
+              <span class="w-[3px] h-4/5 bg-gold rounded-full animate-[bounce_0.6s_ease-in-out_infinite_alternate]" style="animation-delay: 0.4s"></span>
+              <span class="w-[3px] h-1/2 bg-gold rounded-full animate-[bounce_0.6s_ease-in-out_infinite_alternate]" style="animation-delay: 0.1s"></span>
+            </div>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <a
@@ -940,6 +963,11 @@
             spotifyPlaybackStarted = true;
             window.clearTimeout(spotifyPlaybackStatusTimer);
             updateSpotifyStatus("מתנגן עכשיו: 22 - Taylor Swift");
+            const visualizer = document.getElementById("musicVisualizer");
+            if (visualizer) {
+              visualizer.classList.remove("hidden");
+              visualizer.classList.add("flex");
+            }
           });
         }
       );
@@ -948,14 +976,14 @@
     function buildAlbum() {
       if (!albumTrack || !albumDotsContainer) return;
       albumTrack.innerHTML = albumItems.map((item, index) => `
-        <article class="album-slide px-2" dir="rtl">
-          <div class="photo-card glass-card overflow-hidden rounded-[2.5rem] p-5 shadow-[0_15px_40px_-15px_rgba(125,66,87,0.15)] relative">
+        <article class="album-slide px-2 h-full" dir="rtl">
+          <div class="photo-card glass-card overflow-hidden rounded-[2.5rem] p-5 shadow-[0_15px_40px_-15px_rgba(125,66,87,0.15)] relative h-full flex flex-col">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-blush/40 rounded-full blur-3xl pointer-events-none"></div>
             <div class="mb-5 flex items-center justify-between relative z-10">
               <span class="text-xs font-bold tracking-widest text-gold/80 font-heading bg-white/50 px-3 py-1 rounded-full border border-white/60">${String(index + 1).padStart(2, "0")}</span>
               <span class="font-['Caveat'] text-[1.8rem] font-bold text-wine tracking-wide" style="font-family: 'Caveat', cursive, 'Heebo';">${item.title}</span>
             </div>
-            <button type="button" class="album-image-button relative rounded-[1.8rem] overflow-hidden border-4 border-white/90 shadow-sm z-10" data-album-open="${index}" aria-label="פתיחת ${item.title}">
+            <button type="button" class="album-image-button relative rounded-[1.8rem] overflow-hidden border-4 border-white/90 shadow-sm z-10 shrink-0" data-album-open="${index}" aria-label="פתיחת ${item.title}">
               <div class="absolute inset-0 bg-gradient-to-t from-wine/30 to-transparent opacity-0 transition-opacity hover:opacity-100 z-10"></div>
               <img
                 src="${item.src}"
@@ -964,7 +992,7 @@
                 loading="lazy"
               >
             </button>
-            <p class="px-2 pb-1 pt-6 text-[1.05rem] font-medium leading-relaxed text-wine/85 tracking-wide text-center relative z-10">${item.caption}</p>
+            <p class="px-2 pb-1 pt-6 text-[1.05rem] font-medium leading-relaxed text-wine/85 tracking-wide text-center relative z-10 flex-grow flex items-center justify-center">${item.caption}</p>
           </div>
         </article>
       `).join("");
@@ -1019,10 +1047,25 @@
       }, 250);
     }
 
+    function releaseHearts() {
+      for (let i = 0; i < 20; i++) {
+        const heart = document.createElement("i");
+        heart.className = "fa-solid fa-heart fixed text-[#eab1bf] drop-shadow-sm opacity-0 pointer-events-none z-[9999]";
+        heart.style.left = `${Math.random() * 90 + 5}%`;
+        heart.style.bottom = "-5%";
+        heart.style.fontSize = `${Math.random() * 25 + 15}px`;
+        heart.style.animation = `floatUpHeart ${Math.random() * 3 + 3}s ease-in-out forwards`;
+        heart.style.animationDelay = `${Math.random() * 0.5}s`;
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 7000);
+      }
+    }
+
     openGiftButton.addEventListener("click", () => {
       if (opened) return;
       opened = true;
       launchConfetti();
+      releaseHearts();
       requestSpotifyPlayback();
       revealScreen.classList.add("fade-out");
 
@@ -1215,8 +1258,51 @@
         }
       });
     }
+    // 1. Parallax Depth (Particles)
+    document.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      const particles = document.getElementById("particles");
+      if (particles) particles.style.transform = `translate(${-x}px, ${-y}px)`;
+    });
+
+    // 2. Glowing Timeline
+    const timelineProgress = document.getElementById("timelineProgress");
+    const routeStage = document.querySelector(".route-stage");
+    if (timelineProgress && routeStage) {
+      const pathLength = timelineProgress.getTotalLength();
+      timelineProgress.style.strokeDasharray = pathLength;
+      timelineProgress.style.strokeDashoffset = pathLength;
+      window.addEventListener("scroll", () => {
+        requestAnimationFrame(() => {
+          const rect = routeStage.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          let percentage = (windowHeight - rect.top) / (rect.height + windowHeight / 2);
+          percentage = Math.max(0, Math.min(1, percentage));
+          timelineProgress.style.strokeDashoffset = pathLength - (pathLength * percentage);
+        });
+      }, { passive: true });
+    }
+
+    // 3. Magnetic Buttons
+    function makeMagnetic(element) {
+      if (!element) return;
+      element.addEventListener("mousemove", (e) => {
+        const rect = element.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        element.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) scale(1.1)`;
+      });
+      element.addEventListener("mouseleave", () => {
+        element.style.transform = `translate(0px, 0px) scale(1)`;
+      });
+    }
 
     buildAlbum();
+    
+    // Apply magnetic effect after elements exist
+    makeMagnetic(document.getElementById("albumNext"));
+    makeMagnetic(document.getElementById("albumPrev"));
     scrollAlbumTo(0);
   </script>
   <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
